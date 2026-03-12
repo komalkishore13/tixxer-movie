@@ -370,7 +370,7 @@ async function sendPayment(amountInEth, onProgress) {
          * You can replace this with your own wallet address if you
          * want to receive the test ETH instead.
          */
-        const RECIPIENT_ADDRESS = '0x0000000000000000000000000000000000000001';
+        const RECIPIENT_ADDRESS = '0x04d4DA8938e56C954DCf2Fa4d649B143e8F9541A';
 
         /*
          * ethers.utils.parseEther() converts a human-readable ETH

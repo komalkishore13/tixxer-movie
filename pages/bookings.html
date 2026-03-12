@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Tixxer</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+
+    <style>
+        /* ── Bookings Page Styles ── */
+        .bookings-page {
+            padding-top: 90px;
+            padding-bottom: 60px;
+            min-height: 100vh;
+        }
+
+        .bookings-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .bookings-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .bookings-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Search bar */
+        .bookings-search {
+            display: flex;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .bookings-search input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color, #333);
+            background: var(--card-bg, #1a1a2e);
+            color: var(--text-primary, #fff);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .bookings-search input::placeholder {
+            color: var(--text-muted, #888);
+        }
+
+        .bookings-search input:focus {
+            border-color: var(--coral, #EF4566);
+        }
+
+        .bookings-search button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            background: var(--coral, #EF4566);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: opacity 0.2s;
+        }
+
+        .bookings-search button:hover {
+            opacity: 0.9;
+        }
+
+        /* Loading / empty states */
+        .bookings-status {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted, #888);
+            font-size: 1rem;
+        }
+
+        .bookings-status .spinner-lg {
+            width: 32px;
+            height: 32px;
+            border-width: 3px;
+            margin: 0 auto 12px;
+        }
+
+        /* Bookings grid */
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* Single booking card */
+        .booking-card {
+            background: var(--card-bg, #1a1a2e);
+            border: 1px solid var(--border-color, #2a2a3e);
+            border-radius: 14px;
+            padding: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .booking-card:hover {
+            border-color: var(--coral, #EF4566);
+        }
+
+        .booking-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .booking-movie-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary, #fff);
+        }
+
+        .booking-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(76, 217, 100, 0.15);
+            color: #4CD964;
+            white-space: nowrap;
+        }
+
+        .booking-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .booking-detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-detail-label {
+            font-size: 0.8rem;
+            color: var(--text-muted, #888);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .booking-detail-value {
+            font-size: 0.9rem;
+            color: var(--text-primary, #fff);
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .booking-divider {
+            border: none;
+            border-top: 1px solid var(--border-color, #2a2a3e);
+            margin: 12px 0;
+        }
+
+        .booking-tx-link {
+            color: var(--coral, #EF4566);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .booking-tx-link:hover {
+            text-decoration: underline;
+        }
+
+        .booking-date-small {
+            font-size: 0.75rem;
+            color: var(--text-muted, #666);
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        /* Count badge */
+        .bookings-count {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted, #888);
+        }
+
+        .bookings-count strong {
+            color: var(--coral, #EF4566);
+        }
+
+        @media (max-width: 480px) {
+            .bookings-grid {
+                grid-template-columns: 1fr;
+            }
+            .bookings-search {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="../index.html" class="brand-link">
+                <img src="../assets/images/logo.svg" alt="Tixxer" class="logo-img">
+            </a>
+        </div>
+        <div class="navbar-center">
+            <a href="../index.html" class="nav-brand-text" style="text-decoration:none;">Tixxer</a>
+        </div>
+        <div class="navbar-right">
+            <span class="nav-network-badge">Powered by Sepolia Testnet</span>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="container bookings-page">
+
+        <div class="bookings-header">
+            <h1 class="bookings-title">My Bookings</h1>
+            <p class="bookings-subtitle">View all ticket bookings stored in the database</p>
+        </div>
+
+        <!-- Search by wallet address -->
+        <div class="bookings-search">
+            <input
+                type="text"
+                id="walletInput"
+                placeholder="Paste wallet address to filter (optional)"
+            >
+            <button id="searchBtn">Search</button>
+        </div>
+
+        <!-- Count -->
+        <div class="bookings-count" id="bookingsCount" style="display:none;"></div>
+
+        <!-- Booking cards go here -->
+        <div id="bookingsContainer">
+            <div class="bookings-status" id="bookingsStatus">
+                Click <strong>Search</strong> to load all bookings, or paste a wallet address to filter.
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <p>&copy; 2026 Tixxer &middot; Built for Learning</p>
+    </footer>
+
+    <script>
+    (function () {
+        var container = document.getElementById('bookingsContainer');
+        var statusEl = document.getElementById('bookingsStatus');
+        var countEl = document.getElementById('bookingsCount');
+        var walletInput = document.getElementById('walletInput');
+        var searchBtn = document.getElementById('searchBtn');
+
+        // Fetch bookings from the API
+        function loadBookings(walletFilter) {
+            // Show loading state
+            container.innerHTML =
+                '<div class="bookings-status">' +
+                '<div class="spinner spinner-lg"></div>' +
+                '<p>Loading bookings...</p></div>';
+            countEl.style.display = 'none';
+
+            // Build API URL
+            var url = '/api/get-bookings';
+            if (walletFilter && walletFilter.trim()) {
+                url += '?wallet=' + encodeURIComponent(walletFilter.trim());
+            }
+
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data.success) {
+                        container.innerHTML =
+                            '<div class="bookings-status">Error: ' + data.error + '</div>';
+                        return;
+                    }
+
+                    if (data.count === 0) {
+                        container.innerHTML =
+                            '<div class="bookings-status">No bookings found.' +
+                            (walletFilter ? ' Try a different wallet address.' : '') +
+                            '</div>';
+                        countEl.style.display = 'none';
+                        return;
+                    }
+
+                    // Show count
+                    countEl.innerHTML = 'Found <strong>' + data.count + '</strong> booking' +
+                        (data.count === 1 ? '' : 's');
+                    countEl.style.display = 'block';
+
+                    // Render booking cards
+                    var html = '<div class="bookings-grid">';
+                    data.bookings.forEach(function (b) {
+                        var seats = Array.isArray(b.seats) ? b.seats.join(', ') : b.seats;
+                        var shortWallet = b.walletAddress
+                            ? b.walletAddress.slice(0, 6) + '...' + b.walletAddress.slice(-4)
+                            : 'N/A';
+                        var shortTx = b.txHash
+                            ? b.txHash.slice(0, 8) + '...' + b.txHash.slice(-6)
+                            : 'N/A';
+                        var txLink = b.txHash
+                            ? 'https://sepolia.etherscan.io/tx/' + b.txHash
+                            : '#';
+                        var bookedAt = b.bookedAt
+                            ? new Date(b.bookedAt).toLocaleString()
+                            : '';
+
+                        html +=
+                            '<div class="booking-card">' +
+                            '  <div class="booking-card-header">' +
+                            '    <span class="booking-movie-name">' + (b.movieName || 'Unknown') + '</span>' +
+                            '    <span class="booking-badge">Confirmed</span>' +
+                            '  </div>' +
+                            '  <div class="booking-details">' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Date</span>' +
+                            '      <span class="booking-detail-value">' + (b.date || '-') + '</span>' +
+                            '    </div>' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Time</span>' +
+                            '      <span class="booking-detail-value">' + (b.time || '-') + '</span>' +
+                            '    </div>' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Seats</span>' +
+                            '      <span class="booking-detail-value">' + seats + '</span>' +
+                            '    </div>' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Amount</span>' +
+                            '      <span class="booking-detail-value">' + (b.totalETH || '0') + ' ETH</span>' +
+                            '    </div>' +
+                            '    <hr class="booking-divider">' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Wallet</span>' +
+                            '      <span class="booking-detail-value" title="' + (b.walletAddress || '') + '">' + shortWallet + '</span>' +
+                            '    </div>' +
+                            '    <div class="booking-detail-row">' +
+                            '      <span class="booking-detail-label">Tx Hash</span>' +
+                            '      <a class="booking-tx-link" href="' + txLink + '" target="_blank" rel="noopener">' + shortTx + '</a>' +
+                            '    </div>' +
+                            '  </div>' +
+                            '  <div class="booking-date-small">Booked: ' + bookedAt + '</div>' +
+                            '</div>';
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                })
+                .catch(function (err) {
+                    container.innerHTML =
+                        '<div class="bookings-status">Failed to load bookings. Make sure the API is running.</div>';
+                    console.error('Fetch error:', err);
+                });
+        }
+
+        // Search button click
+        searchBtn.addEventListener('click', function () {
+            loadBookings(walletInput.value);
+        });
+
+        // Enter key in input
+        walletInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') loadBookings(walletInput.value);
+        });
+
+        // Auto-load all bookings on page open
+        loadBookings('');
+    })();
+    </script>
+
+</body>
+</html>
