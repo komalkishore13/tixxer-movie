@@ -216,6 +216,10 @@ function resetTxProgress() {
  */
 async function handlePayment() {
 
+    // Auth gate — block payment if not logged in
+    const tixxerUser = requireTixxerAuth();
+    if (!tixxerUser) return;
+
     // --- Step 1: Show loading state ---
     payBtn.disabled = true;
     payBtn.innerHTML = '<span class="spinner"></span> Waiting for approval...';
